@@ -2,15 +2,13 @@ import pygame
 import random
 import sys
 from pygame.locals import QUIT, K_UP, K_DOWN, K_LEFT, K_RIGHT, KEYDOWN
-#Need : food
 pygame.init()
 SURFACE = pygame.display.set_mode((500,500))
 FPSCLOCK = pygame.time.Clock()
 class Player:
-    p = [[20,20]]   # snake bodies' position
+    p = [[20,20],[19,20],[18,20]]   # snake bodies' position
     d = 4   # moving direction
     alive = 1   # 1 = alive, 0 = dead
-    tp = [0,0]  # turning point
     def draw():
         for i in range(len(Player.p)):
             pygame.draw.rect(SURFACE,(255,255,0),((Player.p[i][0] - 1 )* 10 + 50,\
@@ -23,17 +21,17 @@ class Player:
         (Player.p[0][1] - 1) * 10 + 25,10,10))
     def move():
         if Player.d == 1:
-            for i in range(len(Player.p)):
-                Player.p[i][1] -= 1
+            Player.p.insert(0, [Player.p[0][0], Player.p[0][1] - 1])
+            Player.p.pop()
         elif Player.d == 2:
-            for i in range(len(Player.p)):
-                Player.p[i][1] += 1
+            Player.p.insert(0, [Player.p[0][0], Player.p[0][1] + 1])
+            Player.p.pop()
         elif Player.d == 3:
-            for i in range(len(Player.p)):
-                Player.p[i][0] -= 1
+            Player.p.insert(0, [Player.p[0][0] - 1, Player.p[0][1]])
+            Player.p.pop()
         elif Player.d == 4:
-            for i in range(len(Player.p)):
-                Player.p[i][0] += 1
+            Player.p.insert(0, [Player.p[0][0] + 1, Player.p[0][1]])
+            Player.p.pop()
         elif Player.alive == 0:
             Player.d = 0
     def foodcheck():
@@ -71,29 +69,30 @@ def restart():  # reset or restart. press R
     Player.p[0] = [20,20]
     Player.alive = 1
     Player.d = 4
+    
 def main():
     Food.setpos()
     while True:
         for event in pygame.event.get():
             if event.type == KEYDOWN:   # key bindings
                 if event.key == K_UP:
-                    Player.tp = [Player.p[0][0], Player.p[0][1]]
-                    Player.d = 1
+                    if Player.d != 2:
+                        Player.d = 1
                     if Player.alive == 0:
                         Player.d = 0
                 elif event.key == K_DOWN:
-                    Player.tp = [Player.p[0][0], Player.p[0][1]]
-                    Player.d = 2
+                    if Player.d != 1:
+                        Player.d = 2
                     if Player.alive == 0:
                         Player.d = 0
                 elif event.key == K_LEFT:
-                    Player.tp = [Player.p[0][0], Player.p[0][1]]
-                    Player.d = 3
+                    if Player.d != 4:
+                        Player.d = 3
                     if Player.alive == 0:
                         Player.d = 0
                 elif event.key == K_RIGHT:
-                    Player.tp = [Player.p[0][0], Player.p[0][1]]
-                    Player.d = 4
+                    if Player.d != 3:
+                        Player.d = 4
                     if Player.alive == 0:
                         Player.d = 0
                 elif event.key == pygame.K_ESCAPE:
@@ -118,6 +117,14 @@ def main():
             Player.alive = 0
             Player.d = 0
             gameover()
+        for i in Player.p:
+            j = 0
+            if j != 0:
+                if Player.p[0] == i:
+                    Player.alive = 0
+                    Player.d = 0
+                    gameover()
+            j += 1
         FPSCLOCK.tick(10)
             
         pygame.display.update()
